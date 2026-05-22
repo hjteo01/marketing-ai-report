@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Marketing AI Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+  <style>
+    :root {
+      --purple: #7C3AED;
+      --purple-dark: #5B21B6;
+      --purple-light: #EDE9FE;
+      --purple-mid: #A78BFA;
+      --ink: #1E1B4B;
+      --slate: #64748B;
+      --bone: #FAFAF9;
+    }
+    body { font-family: 'DM Sans', sans-serif; color: var(--ink); background: var(--bone); }
+    h1, h2, h3, .editorial { font-family: 'Playfair Display', serif; }
+
+    .tab-btn {
+      padding: 14px 32px; font-size: 0.95rem; font-weight: 600;
+      font-family: 'DM Sans', sans-serif; color: var(--slate);
+      border: none; border-bottom: 3px solid transparent; background: none;
+      cursor: pointer; transition: all 0.25s; letter-spacing: -0.01em;
+    }
+    .tab-btn:hover { color: var(--purple); }
+    .tab-btn.active-tab { color: var(--purple-dark); border-bottom-color: var(--purple); }
+
+    .kpi-card {
+      position: relative; overflow: hidden;
+      border-radius: 12px; padding: 20px 24px;
+      background: white; border: 1px solid #E8E5F0;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,58,237,0.08); }
+    .kpi-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--purple), var(--purple-mid));
+    }
+
+    .quadrant-card { border-radius: 12px; padding: 28px; margin-bottom: 0; }
+    .quadrant-continue { background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); border-top: 3px solid #10B981; }
+    .quadrant-amplify { background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%); border-top: 3px solid var(--purple); }
+    .quadrant-boost { background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-top: 3px solid #F59E0B; }
+    .quadrant-deprioritize { background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%); border-top: 3px solid #EF4444; }
+
+    .insight-tab-btn {
+      padding: 10px 20px; font-size: 0.82rem; font-weight: 600;
+      border-radius: 100px; cursor: pointer; transition: all 0.2s;
+      border: 2px solid #E8E5F0; background: white; color: var(--slate);
+      letter-spacing: 0.02em;
+    }
+    .insight-tab-btn:hover { border-color: var(--purple-mid); color: var(--purple); background: var(--purple-light); }
+    .insight-tab-btn.active { background: var(--purple); color: white; border-color: var(--purple); box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
+
+    .section-card {
+      background: white; border: 1px solid #E8E5F0; border-radius: 16px;
+      padding: 32px; margin-top: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--purple-dark), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
+</head>
+<body class="py-8">
+<div class="max-w-6xl mx-auto px-8">
+
+  <!-- Header -->
+  <header class="mb-10">
+    <div class="flex items-end justify-between border-b-2 border-[#1E1B4B] pb-6">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--purple)] mb-2">AI-Powered Analysis</p>
+        <h1 class="text-4xl font-black text-[var(--ink)] leading-tight">Marketing AI Report</h1>
+        <p class="text-sm text-[var(--slate)] mt-3 max-w-xl leading-relaxed">
+          Evaluating what content resonates, what falls flat, and where the untapped opportunities live.
+        </p>
+      </div>
+      <div class="text-right text-xs text-[var(--slate)] space-y-1">
+        <p>Teo Hui Jie</p>
+        <p class="font-semibold text-[var(--ink)]">Analysis Period: Jan 2025 - Mar 2026</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Campaign Type Tabs -->
+  <nav class="flex gap-1 border-b border-[#E8E5F0] mb-0">
+    <button class="tab-btn active-tab" data-tab="GoLibCont" onclick="switchTab('GoLibCont')">GoLibrary Content</button>
+    <button class="tab-btn" data-tab="GoLibProg" onclick="switchTab('GoLibProg')">GoLibrary Programme</button>
+  </nav>
+
+  <!-- Tab Content: GoLibCont -->
+  <div id="tab-GoLibCont" class="tab-content">
+    <!-- Performance Overview -->
+    <div class="section-card">
+      <h2 class="text-xl font-bold text-[var(--ink)] mb-1 editorial">Performance Overview</h2>
+      <p class="text-xs text-[var(--slate)] mb-5">Aggregate metrics across all GoLibrary Content campaigns</p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Left: Quadrant Distribution -->
+        <div class="border border-[#E8E5F0] rounded-xl p-6" id="cont-quadrant-dist"></div>
+
+        <!-- Right: 2x2 KPI Cards -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="kpi-card">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--slate)]">Total Sends</p>
+            <p class="text-2xl font-bold text-[var(--ink)] mt-1" id="cont-kpi-sends">-</p>
+          </div>
+          <div class="kpi-card">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--slate)]">Total Opens</p>
+            <p class="text-2xl font-bold text-[var(--ink)] mt-1" id="cont-kpi-opens">-</p>
+          </div>
+          <div class="kpi-card">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--slate)]">Avg Open Rate</p>
+            <p class="text-2xl font-bold gradient-text mt-1" id="cont-kpi-or">-</p>
+          </div>
+          <div class="kpi-card">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--slate)]">Avg CTOR</p>
+            <p class="text-2xl font-bold gradient-text mt-1" id="cont-kpi-ctor">-</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scatter Plot -->
+    <div class="section-card">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h2 class="text-xl font-bold text-[var(--ink)] editorial">Performance Matrix</h2>
+          <p class="text-xs text-[var(--slate)] mt-1">Open Rate vs. Click-to-Open Rate</p>
+        </div>
+        <div class="flex gap-4 text-xs text-[var(--slate)]">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span>Continue</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#7C3AED]"></span>Amplify</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span>Boost</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span>Deprioritize</span>
+        </div>
+      </div>
+      <div id="cont-scatter-chart" style="width:100%;height:480px;"></div>
+    </div>
+
+    <!-- AI Insights -->
+    <div class="section-card">
+      <div class="flex items-end justify-between mb-5">
+        <div>
+          <h2 class="text-xl font-bold text-[var(--ink)] editorial">Content Intelligence</h2>
+          <p class="text-xs text-[var(--slate)] mt-1">Strategic recommendations derived from benchmarking and analysing content performance.</p>
+        </div>
+        <span class="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-[var(--purple-light)] text-[var(--purple)]">Powered by Gemini</span>
+      </div>
+      <div class="flex flex-wrap gap-2 mb-5" id="cont-insight-tabs"></div>
+      <div id="cont-insight-content"></div>
+    </div>
+  </div>
+
+  <!-- Tab Content: GoLibProg -->
+  <div id="tab-GoLibProg" class="tab-content hidden">
+    <!-- Performance Overview -->
+    <div class="section-card">
+      <h2 class="text-xl font-bold text-[var(--ink)] mb-1 editorial">Performance Overview</h2>
+      <p class="text-xs text-[var(--slate)] mb-5">Aggregate metrics across all GoLibrary Programme campaigns</p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Left: Quadrant Distribution -->
+        <div class="border border-[#E8E5F0] rounded-xl p-6" id="prog-quadrant-dist"></div>
+
+        <!-- Right: 2x2 KPI Cards -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="kpi-card">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--slate)]">Total Sends</p>
+            <p class="text-2xl font-bold text-[var(--ink)] mt-1" id="prog-kpi-sends">-</p>
+          </div>
+          <div class="kpi-card">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--slate)]">Total Opens</p>
+            <p class="text-2xl font-bold text-[var(--ink)] mt-1" id="prog-kpi-opens">-</p>
+          </div>
+          <div class="kpi-card">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--slate)]">Avg Open Rate</p>
+            <p class="text-2xl font-bold gradient-text mt-1" id="prog-kpi-or">-</p>
+          </div>
+          <div class="kpi-card">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--slate)]">Avg CTOR</p>
+            <p class="text-2xl font-bold gradient-text mt-1" id="prog-kpi-ctor">-</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scatter Plot -->
+    <div class="section-card">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h2 class="text-xl font-bold text-[var(--ink)] editorial">Performance Matrix</h2>
+          <p class="text-xs text-[var(--slate)] mt-1">Open Rate vs. Click-to-Open Rate</p>
+        </div>
+        <div class="flex gap-4 text-xs text-[var(--slate)]">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span>Continue</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#7C3AED]"></span>Amplify</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span>Boost</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span>Deprioritize</span>
+        </div>
+      </div>
+      <div id="prog-scatter-chart" style="width:100%;height:480px;"></div>
+    </div>
+
+    <!-- AI Insights -->
+    <div class="section-card">
+      <div class="flex items-end justify-between mb-5">
+        <div>
+          <h2 class="text-xl font-bold text-[var(--ink)] editorial">Content Intelligence</h2>
+          <p class="text-xs text-[var(--slate)] mt-1">Strategic recommendations derived from benchmarking and analysing content performance.</p>
+        </div>
+        <span class="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-[var(--purple-light)] text-[var(--purple)]">Powered by Gemini</span>
+      </div>
+      <div class="flex flex-wrap gap-2 mb-5" id="prog-insight-tabs"></div>
+      <div id="prog-insight-content"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-12 pt-6 border-t border-[#E8E5F0] flex justify-between items-center">
+    <p class="text-xs text-[var(--slate)]">Marketing AI Report</p>
+    <p class="text-xs text-[var(--slate)]">Done by Teo Hui Jie</p>
+  </footer>
+</div>
+
+<script>
+const ALL_DATA = [{"Campaign_Type": "GoLibCont", "Title": "Find Your Balance with These 4 Soothing Reads", "Sends": 176884, "Opens": 73735, "Clicks": 1161, "open_rate": 41.69, "click_to_open_rate": 1.57, "month_year": "2026-03", "quadrant": "amplify"}, {"Campaign_Type": "GoLibProg", "Title": "New Artefacts on Display: Learn the History They Hold", "Sends": 173979, "Opens": 74195, "Clicks": 835, "open_rate": 42.65, "click_to_open_rate": 1.13, "month_year": "2026-03", "quadrant": "boost"}, {"Campaign_Type": "GoLibCont", "Title": "From Book to Oscar Nominee: What to Read Next?", "Sends": 172252, "Opens": 75938, "Clicks": 711, "open_rate": 44.09, "click_to_open_rate": 0.94, "month_year": "2026-03", "quadrant": "boost"}, {"Campaign_Type": "GoLibProg", "Title": "Can You Explore It All Before Early READ Fiesta Ends?", "Sends": 177954, "Opens": 78192, "Clicks": 899, "open_rate": 43.94, "click_to_open_rate": 1.15, "month_year": "2026-03", "quadrant": "boost"}, {"Campaign_Type": "GoLibCont", "Title": "Can You Solve This Mystery?", "Sends": 65371, "Opens": 30912, "Clicks": 325, "open_rate": 47.29, "click_to_open_rate": 1.05, "month_year": "2026-02", "quadrant": "boost"}, {"Campaign_Type": "GoLibCont", "Title": "Explore 4 Books About How We Connect With Others", "Sends": 169798, "Opens": 84600, "Clicks": 1040, "open_rate": 49.82, "click_to_open_rate": 1.23, "month_year": "2026-02", "quadrant": "continue"}, {"Campaign_Type": "GoLibProg", "Title": "Coming Up: Entrepreneurship Bootcamps, PRESSPLAY & More!", "Sends": 169460, "Opens": 80282, "Clicks": 1507, "open_rate": 47.38, "click_to_open_rate": 1.88, "month_year": "2026-02", "quadrant": "continue"}, {"Campaign_Type": "GoLibCont", "Title": "What Are Your Money Moves for 2026?", "Sends": 179006, "Opens": 84364, "Clicks": 1060, "open_rate": 47.13, "click_to_open_rate": 1.26, "month_year": "2026-01", "quadrant": "continue"}, {"Campaign_Type": "GoLibProg", "Title": "Secure Your Spot Now: Expert Talks on WWII Archives, Green Living & More!", "Sends": 175020, "Opens": 65808, "Clicks": 1372, "open_rate": 37.6, "click_to_open_rate": 2.08, "month_year": "2026-01", "quadrant": "amplify"}, {"Campaign_Type": "GoLibCont", "Title": "Make the Most of Your NLB eResources: Blinkist, LinkedIn Learning & More!", "Sends": 175403, "Opens": 73981, "Clicks": 1447, "open_rate": 42.18, "click_to_open_rate": 1.96, "month_year": "2026-01", "quadrant": "continue"}, {"Campaign_Type": "GoLibProg", "Title": "Everyone\u2019s Talking About The Albatross File Exhibition!", "Sends": 176590, "Opens": 68539, "Clicks": 1549, "open_rate": 38.81, "click_to_open_rate": 2.26, "month_year": "2026-01", "quadrant": "amplify"}, {"Campaign_Type": "GoLibCont", "Title": "Catch Up on These Books Before 2025 Is Over", "Sends": 166229, "Opens": 65846, "Clicks": 749, "open_rate": 39.61, "click_to_open_rate": 1.14, "month_year": "2025-12", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibProg", "Title": "This December, Dabble in New Workshops and Explore Our Pop-Up Experiences!", "Sends": 72813, "Opens": 26499, "Clicks": 569, "open_rate": 36.39, "click_to_open_rate": 2.15, "month_year": "2025-12", "quadrant": "amplify"}, {"Campaign_Type": "GoLibCont", "Title": "\ud83d\udcda Your 4 Short Story Collections to Enjoy Between Moments", "Sends": 175290, "Opens": 68785, "Clicks": 1055, "open_rate": 39.24, "click_to_open_rate": 1.53, "month_year": "2025-12", "quadrant": "amplify"}, {"Campaign_Type": "GoLibProg", "Title": "Discover Sit-n-Read Nodes & 8 Programmes Trending This Week!", "Sends": 152969, "Opens": 55287, "Clicks": 892, "open_rate": 36.14, "click_to_open_rate": 1.61, "month_year": "2025-11", "quadrant": "amplify"}, {"Campaign_Type": "GoLibCont", "Title": "\ud83d\uddde\ufe0f Get Local Headlines at Your Fingertips", "Sends": 175478, "Opens": 78932, "Clicks": 948, "open_rate": 44.98, "click_to_open_rate": 1.2, "month_year": "2025-11", "quadrant": "continue"}, {"Campaign_Type": "GoLibProg", "Title": "Early Read Fiesta and 10 Other Highlights in This Issue", "Sends": 177029, "Opens": 79154, "Clicks": 991, "open_rate": 44.71, "click_to_open_rate": 1.25, "month_year": "2025-11", "quadrant": "boost"}, {"Campaign_Type": "GoLibCont", "Title": "\u270d Let Sir Harold Evans Help You Write and Communicate Better", "Sends": 178331, "Opens": 66542, "Clicks": 735, "open_rate": 37.31, "click_to_open_rate": 1.1, "month_year": "2025-11", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibProg", "Title": "\u2728From the Creator of \"Mr Kiasu\" and More Local Artists\u2014NLB Originals eComics Now Available!", "Sends": 179810, "Opens": 79312, "Clicks": 948, "open_rate": 44.11, "click_to_open_rate": 1.2, "month_year": "2025-10", "quadrant": "boost"}, {"Campaign_Type": "GoLibCont", "Title": "\u2764\ufe0f\u200d\ud83e\ude79 Take a Moment for Self-Care and Growth with These Books", "Sends": 175225, "Opens": 65087, "Clicks": 1301, "open_rate": 37.14, "click_to_open_rate": 2.0, "month_year": "2025-10", "quadrant": "amplify"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83c\udf1f Be Inspired by These Changemakers from the Malay Community", "Sends": 176847, "Opens": 81769, "Clicks": 770, "open_rate": 46.24, "click_to_open_rate": 0.94, "month_year": "2025-10", "quadrant": "boost"}, {"Campaign_Type": "GoLibCont", "Title": "\ud83d\udd25 Worth the Hype? Find Out What\u2019s Buzzing with These Trending Titles", "Sends": 178568, "Opens": 67210, "Clicks": 779, "open_rate": 37.64, "click_to_open_rate": 1.16, "month_year": "2025-10", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83c\udf8a Find Joy & New Passions at the Time of Your Life Celebration!", "Sends": 148582, "Opens": 58704, "Clicks": 798, "open_rate": 39.51, "click_to_open_rate": 1.36, "month_year": "2025-10", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibCont", "Title": "\ud83e\udde0 Fuel Your Brain with These Books from Our Expand Your Knowledge Collection", "Sends": 167041, "Opens": 75339, "Clicks": 794, "open_rate": 45.1, "click_to_open_rate": 1.05, "month_year": "2025-09", "quadrant": "boost"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83c\udf10 Libraries, Archives and AI: What Lies Ahead?", "Sends": 73575, "Opens": 39323, "Clicks": 423, "open_rate": 53.45, "click_to_open_rate": 1.08, "month_year": "2025-09", "quadrant": "boost"}, {"Campaign_Type": "GoLibCont", "Title": "Make the Most of Your NLB Membership \ud83c\udf89", "Sends": 161887, "Opens": 66333, "Clicks": 1491, "open_rate": 40.97, "click_to_open_rate": 2.25, "month_year": "2025-09", "quadrant": "amplify"}, {"Campaign_Type": "GoLibProg", "Title": "\u2728 This Year\u2019s Love Our Libraries and Archives (LOLA) is Extra Special! \u2728", "Sends": 178835, "Opens": 67532, "Clicks": 960, "open_rate": 37.76, "click_to_open_rate": 1.42, "month_year": "2025-09", "quadrant": "amplify"}, {"Campaign_Type": "GoLibCont", "Title": "\ud83d\ude80 Skill Up & Learn Something New Today!", "Sends": 174379, "Opens": 73388, "Clicks": 1132, "open_rate": 42.09, "click_to_open_rate": 1.54, "month_year": "2025-08", "quadrant": "amplify"}, {"Campaign_Type": "GoLibProg", "Title": "What Unknown Magical Stories Do Our Islands Keep?\ud83c\udfdd\ufe0f", "Sends": 175715, "Opens": 65190, "Clicks": 780, "open_rate": 37.1, "click_to_open_rate": 1.2, "month_year": "2025-08", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibCont", "Title": "The Star Wars Pop-Up Library Has Landed!\u26a1", "Sends": 178565, "Opens": 80393, "Clicks": 737, "open_rate": 45.02, "click_to_open_rate": 0.92, "month_year": "2025-08", "quadrant": "boost"}, {"Campaign_Type": "GoLibProg", "Title": "STEAM Lab: Enter the Unknown\u2014Are You Game\u00a0to\u00a0Explore?\u00a0\ud83d\udd0d", "Sends": 180157, "Opens": 69094, "Clicks": 996, "open_rate": 38.35, "click_to_open_rate": 1.44, "month_year": "2025-08", "quadrant": "amplify"}, {"Campaign_Type": "GoLibCont", "Title": "Presidential Picks: Discover the Stories and Ideas That Shaped Singapore's Presidents", "Sends": 181243, "Opens": 75844, "Clicks": 839, "open_rate": 41.85, "click_to_open_rate": 1.11, "month_year": "2025-07", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83c\udfa4 Let\u2019s Talk Sing Lit\u20144 SWF Directors, 1 Unfiltered Conversation", "Sends": 176544, "Opens": 64775, "Clicks": 753, "open_rate": 36.69, "click_to_open_rate": 1.16, "month_year": "2025-07", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibCont", "Title": "30 Books from 30 Singaporean Personalities: Browse These Personal Book Recommendations", "Sends": 178206, "Opens": 81677, "Clicks": 1470, "open_rate": 45.83, "click_to_open_rate": 1.8, "month_year": "2025-07", "quadrant": "continue"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83d\udcda\u2764\ufe0f Read 15 Minutes, Gift a Book\u2014Plus More to Discover at NLB This July!", "Sends": 179741, "Opens": 79819, "Clicks": 1735, "open_rate": 44.41, "click_to_open_rate": 2.17, "month_year": "2025-07", "quadrant": "continue"}, {"Campaign_Type": "GoLibCont", "Title": "\ud83c\udf82 30 Years of NLB\u2014Discover the Stories and People Behind Our Libraries and Archives!", "Sends": 181133, "Opens": 80651, "Clicks": 709, "open_rate": 44.53, "click_to_open_rate": 0.88, "month_year": "2025-07", "quadrant": "boost"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83c\udf7d\ufe0f Can You Taste a Story? Find Out at Worlds Within! \ud83d\udcd6", "Sends": 177324, "Opens": 64542, "Clicks": 652, "open_rate": 36.4, "click_to_open_rate": 1.01, "month_year": "2025-06", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibCont", "Title": "Upgrade Your Mental Toolkit\u2014Sharper Thinking Starts Here! \ud83d\ude80", "Sends": 174855, "Opens": 80757, "Clicks": 1212, "open_rate": 46.19, "click_to_open_rate": 1.5, "month_year": "2025-06", "quadrant": "continue"}, {"Campaign_Type": "GoLibProg", "Title": "\u2728 Don't Miss: NLB30 Keynotes + BookBugs Bugcadia Grand Finale! \ud83c\udf88", "Sends": 180984, "Opens": 67797, "Clicks": 996, "open_rate": 37.46, "click_to_open_rate": 1.47, "month_year": "2025-06", "quadrant": "amplify"}, {"Campaign_Type": "GoLibCont", "Title": "\ud83c\udf89 School\u2019s Out\u2014and So Is Our Brand New Look!", "Sends": 182168, "Opens": 68854, "Clicks": 799, "open_rate": 37.8, "click_to_open_rate": 1.16, "month_year": "2025-06", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83e\udde9 Spotted: The Comics & Games Library in Punggol! \ud83c\udfb2", "Sends": 178434, "Opens": 73331, "Clicks": 697, "open_rate": 41.1, "click_to_open_rate": 0.95, "month_year": "2025-05", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibCont", "Title": "Your Mission, Should You Choose to Accept It, Is to Read These Books", "Sends": 180112, "Opens": 65606, "Clicks": 448, "open_rate": 36.43, "click_to_open_rate": 0.68, "month_year": "2025-05", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83e\udd62Curiocity: Hawkerscapes\u2014For Foodies Who Love a Good Story! \ud83c\udf5c", "Sends": 146513, "Opens": 59285, "Clicks": 716, "open_rate": 40.46, "click_to_open_rate": 1.21, "month_year": "2025-05", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibCont", "Title": "\ud83c\udf7d\ufe0f Warning: These Books Will Make You Hungry \ud83e\udd24", "Sends": 178381, "Opens": 76604, "Clicks": 689, "open_rate": 42.94, "click_to_open_rate": 0.9, "month_year": "2025-05", "quadrant": "boost"}, {"Campaign_Type": "GoLibProg", "Title": "Re:Make\u2014Celebrate All Things Singapore with NLB!", "Sends": 185690, "Opens": 79762, "Clicks": 1079, "open_rate": 42.95, "click_to_open_rate": 1.35, "month_year": "2025-04", "quadrant": "boost"}, {"Campaign_Type": "GoLibCont", "Title": "\u2728 Speak with Impact: Top Picks for Better Conversations and Presentations", "Sends": 180251, "Opens": 76037, "Clicks": 926, "open_rate": 42.18, "click_to_open_rate": 1.22, "month_year": "2025-04", "quadrant": "continue"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83c\udfaf Skill Up! Curated Programmes for Working Adults!", "Sends": 182334, "Opens": 79781, "Clicks": 1695, "open_rate": 43.76, "click_to_open_rate": 2.12, "month_year": "2025-04", "quadrant": "continue"}, {"Campaign_Type": "GoLibCont", "Title": "Smart Money Moves: Essential Reads for Every Financial Goal \ud83d\udca1", "Sends": 184126, "Opens": 81253, "Clicks": 782, "open_rate": 44.13, "click_to_open_rate": 0.96, "month_year": "2025-04", "quadrant": "boost"}, {"Campaign_Type": "GoLibProg", "Title": "Create New Connections\u2014Join a Reading Community Today!", "Sends": 185187, "Opens": 79947, "Clicks": 1230, "open_rate": 43.17, "click_to_open_rate": 1.54, "month_year": "2025-04", "quadrant": "continue"}, {"Campaign_Type": "GoLibCont", "Title": "\ud83c\udf0f\ud83d\udcda Celebrate the Diversity of Stories from Asia with These Curated Reads", "Sends": 181843, "Opens": 61941, "Clicks": 459, "open_rate": 34.06, "click_to_open_rate": 0.74, "month_year": "2025-03", "quadrant": "deprioritize"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83e\udd16 Bring Your Ideas to Life with MakeIT at Libraries! \ud83d\udee0", "Sends": 184083, "Opens": 68349, "Clicks": 987, "open_rate": 37.13, "click_to_open_rate": 1.44, "month_year": "2025-03", "quadrant": "amplify"}, {"Campaign_Type": "GoLibCont", "Title": "\ud83d\udc36\ud83d\ude94 Have a Paw-sitively Fun Time This School Holidays", "Sends": 185638, "Opens": 78572, "Clicks": 720, "open_rate": 42.33, "click_to_open_rate": 0.92, "month_year": "2025-03", "quadrant": "boost"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83e\uddd9\u200d\u2642 Fantasy & \ud83d\udc69\u200d\ud83d\ude80 Sci-Fi Lovers\u2014This One\u2019s for You!", "Sends": 187215, "Opens": 81422, "Clicks": 836, "open_rate": 43.49, "click_to_open_rate": 1.03, "month_year": "2025-03", "quadrant": "boost"}, {"Campaign_Type": "GoLibCont", "Title": "Your Favourite eMagazines at Your Fingertips\u2014Access Them Now!", "Sends": 183083, "Opens": 73127, "Clicks": 1075, "open_rate": 39.94, "click_to_open_rate": 1.47, "month_year": "2025-02", "quadrant": "amplify"}, {"Campaign_Type": "GoLibProg", "Title": "Uncover the 1952 Adventure That Left an Enduring Legacy in Singapore\u2019s Art History", "Sends": 184904, "Opens": 79028, "Clicks": 721, "open_rate": 42.74, "click_to_open_rate": 0.91, "month_year": "2025-02", "quadrant": "boost"}, {"Campaign_Type": "GoLibCont", "Title": "4 Reads to Remember Our Journey of Resilience this Total Defence Day", "Sends": 187074, "Opens": 80088, "Clicks": 944, "open_rate": 42.81, "click_to_open_rate": 1.18, "month_year": "2025-02", "quadrant": "continue"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83d\udc12 Meet Sun Wukong and his friends in our new ChatBook in Mandarin!", "Sends": 188472, "Opens": 81845, "Clicks": 1355, "open_rate": 43.43, "click_to_open_rate": 1.66, "month_year": "2025-02", "quadrant": "continue"}, {"Campaign_Type": "GoLibProg", "Title": "Your NLB Membership: Your Passport to Learning! \ud83d\ude80", "Sends": 186420, "Opens": 93952, "Clicks": 2997, "open_rate": 50.4, "click_to_open_rate": 3.19, "month_year": "2025-01", "quadrant": "continue"}, {"Campaign_Type": "GoLibCont", "Title": "\ud83e\uddf9 Find Joy in an Organised Life with Our Books on Decluttering for Fuss-Free Tidying!", "Sends": 190878, "Opens": 80376, "Clicks": 1616, "open_rate": 42.11, "click_to_open_rate": 2.01, "month_year": "2025-01", "quadrant": "amplify"}, {"Campaign_Type": "GoLibProg", "Title": "\ud83d\udcda General Reference Books Now Available for Loan with RefToGo! \ud83c\udf89", "Sends": 167943, "Opens": 63651, "Clicks": 941, "open_rate": 37.9, "click_to_open_rate": 1.48, "month_year": "2025-01", "quadrant": "amplify"}];
+const AI_INSIGHTS = {"GoLibCont": {"continue": {"headline": "These successful campaigns consistently combine curated content focused on self-improvement and practical skills with timely or locally relevant themes, presented with clear benefits in engaging subject lines.", "what_works": "Successful campaigns effectively merge content that appeals to personal development, practical life skills, or direct utility of NLB resources with engaging, often numerical or benefit-driven, subject lines. They frequently leverage themes that are either timely, locally relevant, or aspirational, promising tangible takeaways or enriching experiences. This approach successfully captures subscriber attention (high open rates) and encourages deeper engagement with the content offered (high click-to-open rates) by highlighting immediate value.", "examples": ["Campaign: Make the Most of Your NLB eResources: Blinkist, LinkedIn Learning & More! \u2014 This campaign achieved the highest click-to-open rate by clearly articulating the value and utility of specific, high-demand resources.", "Campaign: 30 Books from 30 Singaporean Personalities: Browse These Personal Book Recommendations \u2014 The inclusion of local personalities and personal recommendations provides social proof and local relevance, generating significant interest.", "Campaign: Upgrade Your Mental Toolkit\u2014Sharper Thinking Starts Here! \ud83d\ude80 \u2014 This title uses aspirational language and an emoji to promise self-improvement, directly appealing to a desire for personal growth.", "Campaign: What Are Your Money Moves for 2026? \u2014 A timely, question-based subject line that appeals to financial literacy and future planning, showing relevance to current reader concerns."], "how_to_replicate": ["**Focus on Skill-Building and Personal Growth:** Develop campaign themes around practical skills and self-improvement, as seen in \"What Are Your Money Moves for 2026?\" and \"Upgrade Your Mental Toolkit\u2014Sharper Thinking Starts Here! \ud83d\ude80\". These campaigns resonate because they offer actionable insights or resources that directly contribute to readers' personal or professional development. Position library resources as tools for achieving specific life goals or mastering new abilities.", "**Leverage Curated Lists and Highlight Specific Resources:** Campaigns like \"Explore 4 Books About How We Connect With Others\" and \"30 Books from 30 Singaporean Personalities\" perform well by offering curated content in easily digestible list formats. Crucially, the campaign \"Make the Most of Your NLB eResources: Blinkist, LinkedIn Learning & More!\" achieved the highest CTOR by explicitly naming valuable resources. Future campaigns should continue to feature specific, high-value resources and present them within themed or numbered lists to guide user engagement.", "**Incorporate Timely, Local, and Aspirational Subject Line Language:** Craft subject lines that connect with current events, local relevance, or aspirational goals. \"4 Reads to Remember Our Journey of Resilience this Total Defence Day\" and \"\ud83d\udcf0 Get Local Headlines at Your Fingertips\" are great examples of timeliness and local relevance. Use benefit-driven phrasing like \"Sharper Thinking Starts Here!\" and consider incorporating relevant emojis (e.g., \u2728, \ud83d\ude80) to enhance visibility and emotional appeal, as demonstrated by several top performers."]}, "amplify": {"headline": "Significant opportunity exists to amplify the reach of highly engaging content by refining subject lines and targeting strategies for NLB email campaigns.", "high_potential_insight": "The analyzed campaigns consistently demonstrate strong internal content appeal, evidenced by their high click-to-open rates across diverse themes such as self-improvement, practical skills, and membership utility. However, their relatively lower open rates suggest that current subject lines or broad audience targeting fail to adequately convey this compelling value proposition upfront, thus limiting the initial engagement and overall campaign reach.", "examples": ["Campaign: Make the Most of Your NLB Membership \ud83c\udf89 \u2014 The content clearly resonates with members seeking to maximize value (highest CTOR at 2.2%), yet the generic subject line lacks specific benefits or a personalized call to action that would entice a broader segment of existing members to open.", "Campaign: \ud83d\ude80 Skill Up & Learn Something New Today! \u2014 While the intrinsic desire for self-improvement and learning is strong (leading to a 1.5% CTOR), the generic 'Skill Up & Learn' subject line fails to highlight specific, trending, or personally relevant learning opportunities that would boost opens."], "how_to_scale": ["**Tailored Segment Targeting:** Implement advanced segmentation strategies to deliver highly relevant content to specific user groups. For campaigns like \"Find Your Balance with These 4 Soothing Reads,\" target users identified as interested in wellness, self-help, or specific genres based on past borrowing history or declared interests, ensuring the email lands with those most likely to be seeking such content. Similarly, \"Make the Most of Your NLB Membership \ud83c\udf89\" can be segmented for new members with an onboarding series, or those with underutilized benefits, rather than a broad blast.", "**Compelling and Personalized Subject Lines:** Revamp subject lines to be more specific, benefit-oriented, and personalized to entice higher open rates. For example, instead of the general \"\ud83d\ude80 Skill Up & Learn Something New Today!\", experiment with subject lines like \"Unlock [Specific Skill]: Top Books & Courses from NLB\" or \"Your Next Career Move? Discover Learning for You.\" Similarly, for \"\ud83e\uddf9 Find Joy in an Organised Life with Our Books on Decluttering for Fuss-Free Tidying!\", a more concise and benefit-driven subject like \"Declutter Your Space, Simplify Your Life: NLB's Top Tidying Reads\" could perform better.", "**Optimized Send Timing and Cadence:** Analyze historical open and click data to identify optimal send times for different content themes, moving beyond a one-size-fits-all approach. For instance, self-care and wellness-focused campaigns like \"Find Your Balance with These 4 Soothing Reads\" or \"\u2764\ufe0f\u200d\ud83e\ude79 Take a Moment for Self-Care and Growth with These Books\" might see higher engagement when sent during evenings or weekends, when subscribers are more likely to seek relaxation. Additionally, consider sending a follow-up to non-openers of high-CTOR campaigns with an alternative subject line to capture missed opportunities."]}, "boost": {"headline": "NLB email campaigns show strong initial interest but fail to convert opens into clicks, indicating a disconnect between engaging subject lines and internal email content or calls to action.", "gap_analysis": "While subject lines successfully capture attention, the content within these emails appears too generic, lacks immediate relevance to the specific hook, or presents information in a way that doesn't compel users to click through. This mismatch between the perceived value promised in the subject line and the actual delivery within the email causes significant drop-off in engagement.", "examples": ["Campaign: From Book to Oscar Nominee: What to Read Next? \u2014 The promise of discovering Oscar-worthy reads likely led to a generic list of book titles without further context, movie connections, or interactive elements, disappointing readers looking for a curated, film-centric experience.", "Campaign: Can You Solve This Mystery? \u2014 The captivating subject line implies an interactive challenge or puzzle, but the email likely offered only a static list of mystery books, failing to deliver on the engaging, 'solve-it' premise that sparked the open.", "Campaign: \ud83c\udf82 30 Years of NLB\u2014Discover the Stories and People Behind Our Libraries and Archives! \u2014 While celebrating a milestone is appealing, the email content may have been too text-heavy or lacked direct, clickable links to specific stories, historical archives, or engaging multimedia, making the 'discovery' aspect difficult or uninspiring."], "how_to_fix": ["**Refine User Segmentation**: To improve click engagement, future campaigns should be sent to more targeted user segments based on past borrowing history, website interactions, or expressed interests. For instance, the 'Smart Money Moves: Essential Reads' campaign could be segmented to users who've previously engaged with finance-related content or expressed interest in financial literacy, while 'The Star Wars Pop-Up Library Has Landed!' could target families or users known to engage with sci-fi or event-related content.", "**Tailor Messaging to Subject Line Promise**: The content within the email must directly fulfill the curiosity or promise generated by the subject line. For 'Can You Solve This Mystery?', instead of just a book list, include a mini-quiz or an embedded interactive element that leads to curated mystery recommendations. For 'From Book to Oscar Nominee', feature direct links to movie trailers, author interviews, or side-by-side comparisons of books and their film adaptations, making the content directly relevant to the 'Oscar Nominee' hook.", "**Optimize Content Structure and CTAs**: Emails should feature prominent, clear, and action-oriented Calls-to-Action (CTAs) placed strategically above the fold and throughout the content. For the '30 Years of NLB' campaign, break down historical content into digestible, visually appealing modules with distinct CTAs like 'Explore Our Archives' or 'Read Inspiring Stories,' rather than presenting a lengthy narrative. Ensure mobile responsiveness and minimize visual clutter to guide users effectively towards the desired click."]}, "deprioritize": {"headline": "These campaigns consistently fail due to vague, unappealing subject lines and content that lacks specific value, relevance, or a compelling call to action for a broad audience.", "why_it_fails": "The core issue lies in subject lines that are either too generic and lack a clear benefit, or too niche for a general broadcast, failing to capture widespread interest. The content, as suggested by low click-to-open rates, then doesn't provide sufficient engagement, often due to a weak value proposition, institutional focus, or uninspired framing, leading readers to quickly disengage after opening.", "examples": ["Campaign: Catch Up on These Books Before 2025 Is Over \u2014 Generic urgency and vague content promise, lacking specific appeal.", "Campaign: \u270d Let Sir Harold Evans Help You Write and Communicate Better \u2014 Highly niche topic for a general email list, limiting broad appeal.", "Campaign: Your Mission, Should You Choose to Accept It, Is to Read These Books \u2014 Cliched subject line with no specific benefit or compelling reason to engage, resulting in the lowest CTOR.", "Campaign: \ud83c\udf89 School\u2019s Out\u2014and So Is Our Brand New Look! \u2014 Self-promotional focus rather than highlighting a direct, exciting benefit for the reader."], "how_to_avoid": ["**Avoid Vague and Generic Language:** Many subject lines utilize broad terms like \"These Books,\" \"Trending Titles,\" or \"Curated Reads,\" which fail to convey specific value or pique curiosity. This lack of specificity, as seen in \"Catch Up on These Books Before 2025 Is Over,\" doesn't give readers a compelling reason to open or click. Instead, subject lines and content should highlight specific genres, authors, themes, or the unique benefits readers will gain from the content.", "**Rethink Niche Topics and Institutional Focus for Broad Audiences:** Campaigns like \"\u270d Let Sir Harold Evans Help You Write and Communicate Better\" or \"Presidential Picks...\" target very specific interests that won't resonate with NLB's entire subscriber base, leading to low overall engagement. Similarly, \"School\u2019s Out\u2014and So Is Our Brand New Look!\" focuses on the institution rather than a direct, exciting benefit for the reader. NLB should consider audience segmentation for highly niche content or reframe institutional news around clear reader advantages.", "**Strengthen Value Proposition and Avoid Cliched Hooks:** Several campaigns suffer from a weak value proposition or rely on uninspired, cliched language that doesn't motivate action. \"Your Mission, Should You Choose to Accept It, Is to Read These Books\" is an example where a tired reference fails to connect with the library's offerings and results in the lowest click-to-open rate. Future campaigns must clearly articulate what readers will gain, create genuine curiosity, or offer a tangible, time-sensitive benefit without resorting to overused or forced urgency tactics."]}}, "GoLibProg": {"continue": {"headline": "Successful NLB email campaigns combine compelling, benefit-driven subject lines, often with emojis, with clear, valuable content previews that resonate with user aspirations for learning, community, and personal growth.", "what_works": "These top-performing campaigns consistently use subject lines that are either highly benefit-driven, pique curiosity about unique offerings, or directly address personal growth and community. The strategic use of relevant emojis also stands out as an effective attention-grabber. High click-to-open rates suggest that the email content successfully delivers on the promise or intrigue created by the subject line, offering clear value propositions like skill development, special events, or new learning formats.", "examples": ["Campaign: Your NLB Membership: Your Passport to Learning! \ud83d\ude80 \u2014 This campaign brilliantly combined personalization (\"Your NLB Membership\") with an aspirational value proposition (\"Passport to Learning!\"), signaling significant benefits to the reader.", "Campaign: \ud83c\udfaf Skill Up! Curated Programmes for Working Adults! \u2014 This subject line directly addresses a key reader need (skill development) and targets a specific demographic, promising relevant, curated content.", "Campaign: \ud83d\udcda\u2764\ufe0f Read 15 Minutes, Gift a Book\u2014Plus More to Discover at NLB This July! \u2014 Utilized emojis to stand out, offered a clear, actionable challenge with a reward, and hinted at broader discoveries, driving both opens and clicks."], "how_to_replicate": ["**Leverage Benefit-Driven Subject Lines with Emojis**: Craft subject lines that clearly communicate a direct benefit or aspirational outcome for the reader, such as \"Skill Up!\" or \"Your Passport to Learning!\", as seen in \"\ud83c\udfaf Skill Up! Curated Programmes for Working Adults!\" and \"Your NLB Membership: Your Passport to Learning! \ud83d\ude80\". Integrate relevant emojis to increase visibility and emotional appeal, like the book and heart emojis in \"\ud83d\udcda\u2764\ufe0f Read 15 Minutes, Gift a Book\u2014Plus More to Discover at NLB This July!\", enhancing both open rates and the likelihood of finding valuable content inside.", "**Highlight Novelty, Specificity, and Community**: Drive engagement by promoting unique or new offerings, providing specific details, or fostering a sense of community. Campaigns like \"\ud83d\udc12 Meet Sun Wukong and his friends in our new ChatBook in Mandarin!\" attract curiosity with novelty and specific content, while \"Create New Connections\u2014Join a Reading Community Today!\" emphasizes community building. Clearly state what subscribers can expect, whether it's \"Entrepreneurship Bootcamps\" or \"Curated Programmes for Working Adults!\", ensuring the subject line accurately previews the valuable content within and encourages clicks.", "**Personalize and Target Audiences Explicitly**: Maximize relevance by personalizing messages where possible and explicitly targeting specific audience segments. \"Your NLB Membership: Your Passport to Learning! \ud83d\ude80\" achieved the highest CTOR by directly addressing the individual's membership, making the benefit highly personal. Similarly, \"\ud83c\udfaf Skill Up! Curated Programmes for Working Adults!\" demonstrates success by clearly identifying the target demographic, ensuring that the content is perceived as highly relevant and valuable to that group, leading to better engagement."]}, "amplify": {"headline": "NLB has a significant opportunity to boost email open rates by leveraging compelling content through strategic subject line optimization and targeted audience segmentation.", "high_potential_insight": "The consistently high click-to-open rates across these campaigns clearly indicate that the content within NLB's emails is highly engaging and resonates deeply with recipients once opened. However, the relatively low open rates suggest that current subject lines, broad audience targeting, or send timing are failing to effectively capture attention or convey the inherent value and excitement of the content, preventing a larger portion of the subscriber base from discovering these compelling offerings.", "examples": ["Campaign: Secure Your Spot Now: Expert Talks on WWII Archives, Green Living & More! \u2014 The subject line offers a broad overview. The compelling content likely features detailed speaker bios, intriguing session descriptions, or testimonials that draw specific interest groups in, which isn't fully conveyed up front.", "Campaign: Everyone\u2019s Talking About The Albatross File Exhibition! \u2014 While using social proof, this broad appeal subject line likely went to a general list. The exhibition itself, with its unique narrative or historical significance, would captivate specific segments (e.g., history enthusiasts, art & culture seekers) who would have higher propensity to open if directly targeted.", "Campaign: Discover Sit-n-Read Nodes & 8 Programmes Trending This Week! \u2014 'Sit-n-Read Nodes' is a somewhat niche term. The compelling content likely details diverse, appealing programs and unique benefits of these nodes, which isn't immediately exciting for a general audience in the subject line.", "Campaign: General Reference Books Now Available for Loan with RefToGo! \ud83c\udf89 \u2014 'General Reference Books' sounds academic and dry. The compelling content inside must highlight the revolutionary benefit of RefToGo\u2014accessing previously non-loanable materials\u2014a key advantage that the subject line doesn't fully exploit."], "how_to_scale": ["**Hyper-Targeted Audience Segmentation**: Implement advanced segmentation strategies based on user engagement data, borrowing history, and declared interests to ensure content reaches the most relevant audiences. For instance, campaigns like \"Secure Your Spot Now: Expert Talks...\" could be split, targeting history enthusiasts for WWII talks and sustainability advocates for green living sessions, significantly increasing the likelihood of opens from a highly predisposed segment.", "**Refined Subject Line Crafting**: Redesign subject lines to be more specific, benefit-driven, and curiosity-provoking, moving beyond generic calls to action. For \"General Reference Books Now Available for Loan with RefToGo! \ud83c\udf89\", a subject line like \"Unlock Access: Loan Previously Unavailable Reference Books Instantly with RefToGo!\" would highlight the unique benefit, while \"Discover [Specific Workshop Type]: Your New Hobby Awaits This December!\" for \"This December, Dabble in New Workshops...\" can drive higher open rates by offering immediate value and piquing interest.", "**Optimized Send Timing and Frequency**: Analyze past campaign data to identify optimal send times for various audience segments, ensuring emails land when subscribers are most likely to check their inboxes. For time-sensitive campaigns such as \"Secure Your Spot Now: Expert Talks...\", consider sending a series of emails\u2014an initial announcement, a reminder closer to the event, and a 'last chance' notification\u2014to capitalize on urgency and maximize registrations without overwhelming the entire subscriber base."]}, "boost": {"headline": "NLB's email campaigns effectively capture attention, but consistently fail to convert opens into clicks, indicating a significant disconnect between subject line promise and content delivery.", "gap_analysis": "The high open rates suggest excellent subject lines and strong brand trust, drawing users in. However, the extremely low click-to-open rates (averaging ~1.1%) reveal that once opened, the content either fails to meet expectations, lacks clear and compelling calls to action (CTAs), or is too generic and overwhelming to encourage further engagement. The 'promise' made in the subject line is not being sufficiently delivered or amplified within the email body.", "examples": ["Campaign: New Artefacts on Display: Learn the History They Hold \u2014 The subject line promises intriguing historical discovery. However, the content might be a generic announcement or a list without immediate, captivating visuals, specific artefact stories, or clear links to interactive exhibits or further learning resources, causing interest to wane.", "Campaign: Libraries, Archives and AI: What Lies Ahead? \u2014 This topic is highly engaging and forward-looking, driving a 53.5% open rate. The low click rate suggests the email content likely presented a high-level overview or an academic article without immediate, tangible examples of NLB's AI initiatives, direct links to relevant resources, or opportunities for interactive engagement.", "Campaign: \ud83c\udf1f Be Inspired by These Changemakers from the Malay Community \u2014 The subject line promises personal connection and inspiration. The content may fail to deliver immediate compelling stories, striking visuals, or clear pathways to 'meet' or 'learn more' about these individuals, resulting in a low 0.9% click-through."], "how_to_fix": ["**Enhanced Audience Segmentation and Personalisation:** To boost clicks, NLB should leverage its user data to segment audiences more granularly. For campaigns like 'New Artefacts on Display', target users based on past engagement with history, arts, or specific exhibition topics. Similarly, 'Libraries, Archives and AI' could target tech-savvy members, researchers, or those who frequently engage with future-of-libraries content, allowing for more relevant content within the email body that directly addresses their interests.", "**Improved Message-Content Alignment and Value Proposition:** Ensure the email content immediately validates and expands upon the subject line's promise, providing clear value. For 'New Artefacts on Display', feature one compelling artefact with a striking image and a brief, captivating story, leading directly to a 'Discover more' CTA. For 'Libraries, Archives and AI', start with an intriguing insight or a specific NLB AI project, followed by a concise summary and a clear link to a dedicated landing page with more details or an event registration, rather than a general blog post.", "**Optimised Call-to-Action (CTA) Placement and Content Structure:** Redesign email layouts to feature prominent, singular, and action-oriented CTAs above the fold, ensuring they are visually distinct. For campaigns like 'Can You Explore It All Before Early READ Fiesta Ends?', the email should immediately present the top 2-3 highlights with direct links to their respective sections or registration pages, rather than a lengthy program list, making the 'exploration' effortless and intuitive upon opening the email."]}, "deprioritize": {"headline": "Underperforming NLB email campaigns suffer from overly abstract, niche, or jargon-filled subject lines, failing to attract opens or drive engagement.", "why_it_fails": "These campaigns consistently fail due to subject lines that are either too vague and abstract, rely on internal program names or niche terminology, or do not clearly articulate the value proposition to a broad audience. This lack of clarity and immediate relevance leads to low open rates, and even when opened, the content fails to engage, resulting in exceptionally low click-to-open rates.", "examples": ["Campaign: What Unknown Magical Stories Do Our Islands Keep?\ud83c\udfdd\ufe0f \u2014 The subject is too abstract and lacks a clear connection to NLB's offerings, making the content's value unclear.", "Campaign: \ud83c\udfa4 Let\u2019s Talk Sing Lit\u20144 SWF Directors, 1 Unfiltered Conversation \u2014 Relies on niche terminology ('Sing Lit', 'SWF Directors') that alienates a broader audience, assuming prior knowledge and interest."], "how_to_avoid": ["**Avoid Ambiguity and Jargon**: Subject lines such as \"Worlds Within!\" or \"Curiocity: Hawkerscapes\" use internal program names that provide little context or appeal to a general audience. Similarly, \"Find Joy & New Passions at the Time of Your Life Celebration!\" is too generic. Future campaigns should prioritize clarity and immediately communicate what the email is about and why it matters to the recipient, ensuring the subject line is self-explanatory without requiring prior knowledge.", "**Broaden Appeal or Segment Audience**: Campaigns like \"Let\u2019s Talk Sing Lit\u20144 SWF Directors, 1 Unfiltered Conversation\" and \"Spotted: The Comics & Games Library in Punggol!\" target highly specific interests. While relevant to a niche, broadcasting these to a general list dilutes their impact. For such specific content, NLB should implement audience segmentation to target only the most relevant subscribers, or reframe the subject line for broader appeal by emphasizing universal benefits, such as community or discovery, that transcend the niche topic.", "**Prioritize Clear Value and Action**: The extremely low click-to-open rates across these campaigns indicate that even curiosity-driven opens (e.g., \"Can You Taste a Story?\") are not converting into clicks. Future subject lines and email content must move beyond mere intrigue to clearly articulate the benefit to the reader and guide them towards a specific, appealing call to action. Every email should answer 'What's in it for me?' and 'What should I do next?' upfront to drive engagement."]}}};
+const THRESHOLDS = {"GoLibCont": {"open_rate_median": 42.18, "ctor_median": 1.17}, "GoLibProg": {"open_rate_median": 41.88, "ctor_median": 1.39}};
+
+const QUADRANT_COLORS = {
+  continue: '#10B981',
+  amplify: '#7C3AED',
+  boost: '#F59E0B',
+  deprioritize: '#EF4444'
+};
+
+const QUADRANT_LABELS = {
+  continue: 'Continue',
+  amplify: 'Amplify',
+  boost: 'Boost',
+  deprioritize: 'Deprioritize'
+};
+
+let activeTab = 'GoLibCont';
+const chartInstances = {};
+
+function md(text) {
+  if (!text) return '';
+  return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+}
+
+function fmt(n) {
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toLocaleString();
+}
+
+function getTypeData(type) {
+  return ALL_DATA.filter(d => d.Campaign_Type === type);
+}
+
+function renderKPIs(type, prefix) {
+  const data = getTypeData(type);
+  const totalSends = data.reduce((s, d) => s + d.Sends, 0);
+  const totalOpens = data.reduce((s, d) => s + d.Opens, 0);
+  const avgOR = data.reduce((s, d) => s + d.open_rate, 0) / data.length;
+  const avgCTOR = data.reduce((s, d) => s + d.click_to_open_rate, 0) / data.length;
+
+  document.getElementById(prefix + '-kpi-sends').textContent = fmt(totalSends);
+  document.getElementById(prefix + '-kpi-opens').textContent = fmt(totalOpens);
+  document.getElementById(prefix + '-kpi-or').textContent = avgOR.toFixed(1) + '%';
+  document.getElementById(prefix + '-kpi-ctor').textContent = avgCTOR.toFixed(1) + '%';
+
+  // Quadrant Distribution - horizontal bar chart
+  const distEl = document.getElementById(prefix + '-quadrant-dist');
+  const total = data.length;
+  const quadrantOrder = ['amplify', 'boost', 'continue', 'deprioritize'];
+
+  let html = `<div class="flex items-center justify-between mb-4">
+    <h3 class="text-base font-bold text-[var(--ink)] editorial">Quadrant Distribution</h3>
+    <span class="text-xs text-[var(--slate)]">${total} total</span>
+  </div>`;
+  html += '<div class="space-y-4">';
+
+  for (const q of quadrantOrder) {
+    const count = data.filter(d => d.quadrant === q).length;
+    const pct = total > 0 ? (count / total * 100).toFixed(1) : 0;
+    const color = QUADRANT_COLORS[q];
+    const label = QUADRANT_LABELS[q];
+
+    html += `<div class="flex items-center gap-4">
+      <div class="flex items-center gap-2 w-28 shrink-0">
+        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${color}"></span>
+        <span class="text-sm font-medium text-[var(--ink)]">${label}</span>
+      </div>
+      <div class="flex-1 h-7 bg-[#F1F0F5] rounded-md overflow-hidden">
+        <div class="h-full rounded-md transition-all duration-500" style="width:${pct}%;background:${color}"></div>
+      </div>
+      <div class="text-right w-16 shrink-0">
+        <span class="text-lg font-bold text-[var(--ink)]">${count}</span>
+        <p class="text-[10px] text-[var(--slate)]">${pct}%</p>
+      </div>
+    </div>`;
+  }
+
+  html += '</div>';
+  distEl.innerHTML = html;
+}
+
+function renderScatter(type, chartId) {
+  const data = getTypeData(type);
+  const threshold = THRESHOLDS[type];
+
+  const series = Object.keys(QUADRANT_COLORS).map(q => ({
+    name: QUADRANT_LABELS[q],
+    type: 'scatter',
+    symbolSize: 16,
+    itemStyle: { color: QUADRANT_COLORS[q], opacity: 0.9, borderColor: '#fff', borderWidth: 1.5 },
+    data: data.filter(d => d.quadrant === q).map(d => ({
+      value: [d.open_rate, d.click_to_open_rate],
+      name: d.Title
+    }))
+  }));
+
+  const el = document.getElementById(chartId);
+  if (chartInstances[chartId]) chartInstances[chartId].dispose();
+  const chart = echarts.init(el);
+  chartInstances[chartId] = chart;
+
+  chart.setOption({
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: '#1E1B4B',
+      borderColor: '#7C3AED',
+      textStyle: { color: '#fff', fontSize: 12, fontFamily: 'DM Sans' },
+      formatter: p => {
+        const title = p.data.name.length > 55 ? p.data.name.substring(0, 55) + '...' : p.data.name;
+        return `<b>${title}</b><br/><span style="color:#A78BFA">OR:</span> ${p.value[0].toFixed(1)}%&nbsp;&nbsp;<span style="color:#A78BFA">CTOR:</span> ${p.value[1].toFixed(2)}%`;
+      },
+      confine: true
+    },
+    grid: { left: '10%', right: '6%', bottom: '14%', top: '6%' },
+    xAxis: {
+      name: 'Open Rate (%)', nameLocation: 'middle', nameGap: 36,
+      nameTextStyle: { fontSize: 12, fontWeight: 600, color: '#1E1B4B', fontFamily: 'DM Sans' },
+      axisLabel: { formatter: '{value}%', color: '#64748B', fontSize: 11 },
+      axisLine: { lineStyle: { color: '#E8E5F0' } },
+      splitLine: { lineStyle: { type: 'dashed', color: '#F1F0F5' } }
+    },
+    yAxis: {
+      name: 'Click-to-Open Rate (%)', nameLocation: 'middle', nameGap: 50,
+      nameTextStyle: { fontSize: 12, fontWeight: 600, color: '#1E1B4B', fontFamily: 'DM Sans' },
+      axisLabel: { formatter: '{value}%', color: '#64748B', fontSize: 11 },
+      axisLine: { lineStyle: { color: '#E8E5F0' } },
+      splitLine: { lineStyle: { type: 'dashed', color: '#F1F0F5' } }
+    },
+    series: [
+      ...series,
+      {
+        type: 'line',
+        markLine: {
+          silent: true, symbol: 'none',
+          lineStyle: { color: '#7C3AED', type: 'dashed', width: 1, opacity: 0.5 },
+          data: [
+            { xAxis: threshold.open_rate_median, label: { formatter: 'Median', position: 'insideEndTop', fontSize: 9, color: '#7C3AED' } },
+            { yAxis: threshold.ctor_median, label: { formatter: 'Median', position: 'insideEndTop', fontSize: 9, color: '#7C3AED' } }
+          ]
+        },
+        data: []
+      }
+    ]
+  });
+}
+
+function renderInsightTabs(type, prefix) {
+  const tabsEl = document.getElementById(prefix + '-insight-tabs');
+  const insights = AI_INSIGHTS[type];
+  if (!insights) return;
+
+  const quadrants = ['continue', 'amplify', 'boost', 'deprioritize'];
+  let tabsHtml = '';
+  quadrants.forEach((q, i) => {
+    const active = i === 0 ? ' active' : '';
+    tabsHtml += `<button class="insight-tab-btn${active}" onclick="showInsight('${type}','${prefix}','${q}', this)">
+      <span class="w-2 h-2 rounded-full inline-block mr-1.5" style="background:${QUADRANT_COLORS[q]}"></span>${QUADRANT_LABELS[q]}
+    </button>`;
+  });
+  tabsEl.innerHTML = tabsHtml;
+  showInsightContent(type, prefix, 'continue');
+}
+
+function showInsight(type, prefix, quadrant, btn) {
+  const tabsEl = document.getElementById(prefix + '-insight-tabs');
+  tabsEl.querySelectorAll('.insight-tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showInsightContent(type, prefix, quadrant);
+}
+
+function showInsightContent(type, prefix, quadrant) {
+  const contentEl = document.getElementById(prefix + '-insight-content');
+  const data = AI_INSIGHTS[type]?.[quadrant];
+
+  if (!data) {
+    contentEl.innerHTML = '<p class="text-[var(--slate)] text-sm py-6 italic">No insights available for this quadrant.</p>';
+    return;
+  }
+
+  const fieldConfigs = {
+    continue: {
+      left: [
+        { key: 'what_works', title: 'What Works?', icon: '&#10003;' },
+        { key: 'examples', title: 'Examples', icon: '&#9997;', isList: true, isExample: true }
+      ],
+      right: { key: 'how_to_replicate', title: 'How to Replicate', icon: '&#127919;', isList: true }
+    },
+    amplify: {
+      left: [
+        { key: 'high_potential_insight', title: 'What Works?', icon: '&#10003;' },
+        { key: 'examples', title: 'Examples', icon: '&#9997;', isList: true, isExample: true }
+      ],
+      right: { key: 'how_to_scale', title: 'How to Scale Up', icon: '&#128640;', isList: true }
+    },
+    boost: {
+      left: [
+        { key: 'gap_analysis', title: 'Gap Analysis', icon: '&#10003;' },
+        { key: 'examples', title: 'Examples', icon: '&#9997;', isList: true, isExample: true }
+      ],
+      right: { key: 'how_to_fix', title: 'How to Improve', icon: '&#127919;', isList: true }
+    },
+    deprioritize: {
+      left: [
+        { key: 'why_it_fails', title: "Why It Doesn't Work?", icon: '&#10007;' },
+        { key: 'examples', title: 'Examples', icon: '&#9997;', isList: true, isExample: true }
+      ],
+      right: { key: 'how_to_avoid', title: 'Pitfalls to Avoid', icon: '&#9888;', isList: true }
+    }
+  };
+
+  const config = fieldConfigs[quadrant];
+  const color = QUADRANT_COLORS[quadrant];
+
+  const quadrantIcons = {
+    continue: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    amplify: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+    boost: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
+    deprioritize: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+  };
+
+  // Headline
+  let html = `<div class="border border-[#E8E5F0] rounded-xl overflow-hidden">`;
+
+  if (data.headline) {
+    html += `<div class="px-8 py-5 border-b border-[#E8E5F0] flex items-center gap-3">
+      <span class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background:${color}">${quadrantIcons[quadrant]}</span>
+      <h4 class="text-lg font-bold text-[var(--ink)] editorial leading-snug">${md(data.headline)}</h4>
+    </div>`;
+  }
+
+  // Two-column body
+  html += `<div class="grid grid-cols-1 lg:grid-cols-2">`;
+
+  // Left column
+  html += `<div class="px-8 py-6 border-r border-[#E8E5F0]">`;
+  for (const field of config.left) {
+    const val = data[field.key];
+    if (!val) continue;
+    html += `<div class="mb-5">
+      <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-[var(--slate)] mb-3 flex items-center gap-1.5">
+        <span>${field.icon}</span> ${field.title}
+      </p>`;
+    if (field.isList && Array.isArray(val)) {
+      if (field.isExample) {
+        html += '<div class="space-y-4">' + val.map(v =>
+          `<p class="text-sm text-[var(--ink)] leading-relaxed italic opacity-75 pl-3 border-l-2 border-[#E8E5F0]">${md(v)}</p>`
+        ).join('') + '</div>';
+      } else {
+        html += '<ul class="space-y-2">' + val.map(v =>
+          `<li class="text-sm text-[var(--ink)] leading-relaxed opacity-80">${md(v)}</li>`
+        ).join('') + '</ul>';
+      }
+    } else {
+      html += `<p class="text-[15px] text-[var(--ink)] leading-relaxed">${md(val)}</p>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // Right column (highlighted)
+  const rightField = config.right;
+  const rightVal = data[rightField.key];
+  html += `<div class="px-8 py-6" style="background:${color}08">`;
+  if (rightVal) {
+    html += `<p class="text-[11px] font-bold uppercase tracking-[0.15em] mb-4 flex items-center gap-1.5" style="color:${color}">
+      <span>${rightField.icon}</span> ${rightField.title}
+    </p>`;
+    if (rightField.isList && Array.isArray(rightVal)) {
+      html += '<div class="space-y-4">' + rightVal.map(v => {
+        const clean = md(v);
+        const colonIdx = clean.indexOf(':');
+        if (colonIdx > 0 && colonIdx < 80) {
+          return `<p class="text-[15px] text-[var(--ink)] leading-relaxed"><strong>${clean.substring(0, colonIdx)}:</strong>${clean.substring(colonIdx + 1)}</p>`;
+        }
+        return `<p class="text-[15px] text-[var(--ink)] leading-relaxed">${clean}</p>`;
+      }).join('') + '</div>';
+    } else {
+      html += `<p class="text-[15px] text-[var(--ink)] leading-relaxed">${md(rightVal)}</p>`;
+    }
+  }
+  html += '</div>';
+
+  html += '</div></div>';
+  contentEl.innerHTML = html;
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active-tab', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.toggle('hidden', el.id !== 'tab-' + tab));
+  setTimeout(() => {
+    const chartId = tab === 'GoLibCont' ? 'cont-scatter-chart' : 'prog-scatter-chart';
+    if (chartInstances[chartId]) chartInstances[chartId].resize();
+  }, 100);
+}
+
+function init() {
+  renderKPIs('GoLibCont', 'cont');
+  renderKPIs('GoLibProg', 'prog');
+  renderScatter('GoLibCont', 'cont-scatter-chart');
+  renderScatter('GoLibProg', 'prog-scatter-chart');
+  renderInsightTabs('GoLibCont', 'cont');
+  renderInsightTabs('GoLibProg', 'prog');
+}
+
+window.addEventListener('resize', () => Object.values(chartInstances).forEach(c => c.resize()));
+init();
+</script>
+</body>
+</html>
