@@ -2,9 +2,7 @@
 
 ## Problem
 
-During my internship at the **National Library Board (NLB)**, I built a **Tableau dashboard** to track email campaign performance. While the dashboard showed which campaigns performed well or poorly, marketers still had to manually figure out **why campaigns worked** and **how future campaigns could be improved**.
-
-This made campaign optimisation **time-consuming** and **difficult to scale**.
+During my internship at the **National Library Board (NLB)**, I built a **Tableau dashboard** to track email campaign performance. While the dashboard showed which campaigns performed well or poorly, marketers still had to manually figure out **why campaigns worked** and **how future campaigns could be improved**. This made campaign optimisation **time-consuming** and **difficult to scale**.
 
 ## Solution
 
@@ -17,7 +15,7 @@ The platform analyses **campaign metrics**, **content themes**, and **messaging 
 - **Boost** – campaigns that can be improved
 - **Deprioritise** – approaches to avoid
 
-Built with **HTML**, **JavaScript**, **ECharts**, and **Gemini AI**.
+I built it with **HTML**, **JavaScript**, **ECharts**, and **Gemini AI**.
 
 ## Outcome
 
