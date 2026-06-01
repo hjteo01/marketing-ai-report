@@ -1,1 +1,1 @@
-# marketing-ai-report
+# marketing-ai
