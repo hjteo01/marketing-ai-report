@@ -1,4 +1,4 @@
-# Marketing AI
+# Marketing AI: AI-Powered Email Campaign Optimisation
 
 ## Problem
 
